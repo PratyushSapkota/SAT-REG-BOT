@@ -52,7 +52,7 @@ async def run_check(where, when):
 
     # Clicking the "Sign In" button
     step = "Signing In"
-    wait.until(EC.element_to_be_clickable((By.ID, "okta-signin-submit"))).click()
+    driver.find_element(By.ID, "okta-signin-submit").click()
     wait.until(EC.url_contains("https://www.collegeboard.org/"))
 
     # Navigating to the dashboard
