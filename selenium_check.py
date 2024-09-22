@@ -33,7 +33,7 @@ async def run_check(where, when):
     )
 
     # Set a wait time (can be adjusted)
-    wait = WebDriverWait(driver, 60) 
+    wait = WebDriverWait(driver, 120) 
 
     kathmandu_offset = timedelta(hours=5, minutes=45)
     kathmandu_tz = timezone(kathmandu_offset)
@@ -49,15 +49,11 @@ async def run_check(where, when):
     driver.find_element(by=By.ID, value="okta-signin-password").send_keys(
         os.getenv("password")
     )
-
-    # Clicking the "Sign In" button
     step = "Signing In"
-    # Locate the form element
-    form = driver.find_element(by=By.TAG_NAME, value="form")
-
-    # Send the "ENTER" key to submit the form
-    form.send_keys(Keys.ENTER)
-
+    
+    driver.find_element(by=By.ID, value="okta-signin-password").send_keys(
+        Keys.ENTER
+    )
 
     wait.until(EC.url_contains("https://www.collegeboard.org/"))
 
