@@ -52,7 +52,13 @@ async def run_check(where, when):
 
     # Clicking the "Sign In" button
     step = "Signing In"
-    driver.find_element(By.ID, "okta-signin-submit").click()
+    # Locate the form element
+    form = driver.find_element(by=By.TAG_NAME, value="form")
+
+    # Send the "ENTER" key to submit the form
+    form.send_keys(Keys.ENTER)
+
+
     wait.until(EC.url_contains("https://www.collegeboard.org/"))
 
     # Navigating to the dashboard
