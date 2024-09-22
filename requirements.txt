@@ -1,0 +1,4 @@
+selenium
+webdriver-manger
+dotenv
+python-telegram-bot
