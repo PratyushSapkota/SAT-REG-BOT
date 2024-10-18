@@ -4,18 +4,14 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, filters, Appl
 import os
 from dotenv import load_dotenv
 from selenium_check import run_check
-
+import asyncio
 load_dotenv()
 
-
-async def dummy():
-    return ""
-
-import asyncio
 
 TOKEN = os.getenv("bot_token")
 CHECKING = False
 CHECK_INTERVAL = 15 * 60
+
 
 async def send_message(chat_id, message):
     bot = Bot(token=TOKEN)

@@ -50,7 +50,7 @@ async def run_check(where, when):
         os.getenv("password")
     )
     step = "Signing In"
-    
+
     driver.find_element(by=By.ID, value="okta-signin-password").send_keys(
         Keys.ENTER
     )
@@ -168,7 +168,7 @@ async def run_check(where, when):
     # Toggling to show available test centers only
     wait.until(EC.presence_of_element_located((By.ID, "qc-id-selectdatecenter-testcenter-toggle-showavailableonly"))).click()
     await asyncio.sleep(2)
-    
+
     step = "Looking at centers"
 
     raw_result = driver.find_element(
@@ -178,10 +178,9 @@ async def run_check(where, when):
     result = str(raw_result.text).replace("\n", ",")
     result_arr = result.split(",")
 
-    centers = ""
-    for i in range(len(result_arr)):
-        if result_arr[i] == "Seat is Available":
-            centers += f"{result_arr[i-1]}, "
+    schools = ""
+    for index, line in enumerate(result_arr):
+        if line == "Seat is Available":
+            schools += f"{(result_arr[index - 1])}, "
 
-    return centers
-
+    return schools
