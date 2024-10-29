@@ -13,6 +13,7 @@ TOKEN = os.getenv("bot_token")
 CHECKING = False
 CHECK_INTERVAL = 15 * 60
 cleanDate = datetime.now().date().day
+clearFile()
 
 async def send_message(chat_id, message):
     bot = Bot(token=TOKEN)
@@ -36,6 +37,7 @@ async def check(chat_id):
     while CHECKING:
         if cleanDate != datetime.now().date().day:
             clearFile()
+            cleanDate = datetime.now().date().day
         res = await run_try(where="NP", when="DEC-7")
         if "Failed" in res:
             return await send_message(res)
