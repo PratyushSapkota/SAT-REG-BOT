@@ -13,34 +13,19 @@ from dotenv import load_dotenv
 from telegram import Bot
 import asyncio
 import time
+import platform
+from file import writeLine
 
 from datetime import datetime, timedelta, timezone
 load_dotenv()
 
 # when = "NOV-2"
 # where = "IN", "NP"
-async def run_check(where, when):
+async def run_check(where, when, driver):
     step = ""
 
-    options = Options()
-    options.add_argument("--no-sandbox")
-    options.add_argument("--headless")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_experimental_option("detach", True)
-
-    driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()), options=options
-    )
-
     # Set a wait time (can be adjusted)
-    wait = WebDriverWait(driver, 120) 
-
-    kathmandu_offset = timedelta(hours=5, minutes=45)
-    kathmandu_tz = timezone(kathmandu_offset)
-    kathmandu_time = datetime.now(kathmandu_tz)
-
-    logTime = kathmandu_time.strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{logTime}] Checking start...")
+    wait = WebDriverWait(driver, 30) 
 
     driver.get("https://prod.idp.collegeboard.org/signin")
     driver.find_element(by=By.ID, value="okta-signin-username").send_keys(
@@ -63,16 +48,16 @@ async def run_check(where, when):
 
     # Clicking the "Register" button
     step = "Clicking the 'Register' button"
-
+    
     wait.until(
         EC.presence_of_element_located(
             (
-                By.CSS_SELECTOR, 'a[href="https://collegereadiness.collegeboard.org/sat/register/fees/fee-waivers"]'
+                By.CSS_SELECTOR, 'a[href="https://satsuite.collegeboard.org/score-report-help#tms"]'
             )
         )
     )
 
-    wait.until(EC.presence_of_element_located((By.ID, "qc-id-header-register-button")))
+    # wait.until(EC.presence_of_element_located((By.ID, "qc-id-header-register-button")))
     await asyncio.sleep(1)
     driver.find_element(By.ID, "qc-id-header-register-button").click()
     step = "Clicked"
@@ -182,5 +167,44 @@ async def run_check(where, when):
     for index, line in enumerate(result_arr):
         if line == "Seat is Available":
             schools += f"{(result_arr[index - 1])}, "
-
+    driver.quit()
     return schools
+
+
+async def run_try(where, when):
+    
+    kathmandu_offset = timedelta(hours=5, minutes=45)
+    kathmandu_tz = timezone(kathmandu_offset)
+    kathmandu_time = datetime.now(kathmandu_tz)
+
+    logTime = kathmandu_time.strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{logTime}] Check")
+    
+    
+    writeLine(f"[{logTime}] Check")
+    
+    options = Options()
+    options.add_argument("--no-sandbox")
+    if platform.system() != 'Windows':
+        options.add_argument("--headless")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_experimental_option("detach", True)
+
+    
+    tries = 5
+    for attempt in range(tries):
+        if attempt != 0:
+            print(f"Rechecking: {attempt}")
+            writeLine(f"Rechecking: {attempt}")
+        driver = webdriver.Chrome(
+            service=Service(ChromeDriverManager().install()), options=options
+        )
+        try:
+            res = await run_check(where, when, driver)
+            print(f"[{logTime}] {res}")
+            writeLine(f"[{logTime}] {res}")
+            return res
+        except:
+            driver.quit()
+            if attempt == tries - 1:
+                return f"Failed, Check timestamp: {logTime}"
