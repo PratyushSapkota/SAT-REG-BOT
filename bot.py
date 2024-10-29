@@ -1,5 +1,6 @@
 from telegram import Bot
 from telegram import Update
+import telegram
 from telegram.ext import Updater, CommandHandler, CallbackContext, filters, Application
 import os
 from dotenv import load_dotenv
@@ -34,6 +35,7 @@ async def stop(update: Update, context: CallbackContext):
 
 
 async def check(chat_id):
+    global cleanDate
     while CHECKING:
         if cleanDate != datetime.now().date().day:
             clearFile()
@@ -86,8 +88,11 @@ async def quick_check(update: Update, context: CallbackContext):
 
 async def upload_logs(update: Update, context: CallbackContext):
     fileName = getFileName()
-    with open(fileName, "rb") as file:    
-        await update.message.reply_document(document=file, filename=fileName)
+    with open(fileName, "rb") as file:
+        try:
+            await update.message.reply_document(document=file, filename=fileName)
+        except:
+            await update.message.reply_text("Log file is empty")
 
 def main():
     application = Application.builder().token(TOKEN).build()
