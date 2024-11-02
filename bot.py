@@ -7,14 +7,12 @@ from dotenv import load_dotenv
 from selenium_check import run_check, run_try
 import asyncio
 from datetime import datetime
-from file import clearFile, getFileName, writeLine
+from file import clearFile, getFileName, writeLine, runClear
 
 load_dotenv()
 TOKEN = os.getenv("bot_token")
 CHECKING = False
-CHECK_INTERVAL = 15 * 60
-cleanDate = datetime.now().date().day
-clearFile()
+CHECK_INTERVAL = 5 * 60
 
 async def send_message(chat_id, message):
     bot = Bot(token=TOKEN)
@@ -35,11 +33,7 @@ async def stop(update: Update, context: CallbackContext):
 
 
 async def check(chat_id):
-    global cleanDate
     while CHECKING:
-        if cleanDate != datetime.now().date().day:
-            clearFile()
-            cleanDate = datetime.now().date().day
         res = await run_try(where="NP", when="DEC-7")
         if "Failed" in res:
             return await send_message(res)
@@ -104,6 +98,7 @@ def main():
     application.add_handler(CommandHandler("logs", upload_logs))
 
     print("Bot started")
+    runClear()
     application.run_polling()
 
 
